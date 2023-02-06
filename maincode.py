@@ -204,7 +204,7 @@ def game_begin():
         if nextbot1_5:
             pass
         else:
-            Nextbotted1=Nextbot(texture='assets/textures/angy munci.png', chase_sound=muncichase, death_sound=death, death_texture='assets/textures/angy munci.png',x=ra.uniform(-80,80),z=ra.uniform(-80,80))
+            Nextbotted2=Nextbot(texture='assets/textures/angy munci.png', chase_sound=muncichase, death_sound=death, death_texture='assets/textures/angy munci.png',x=ra.uniform(-80,80),z=ra.uniform(-80,80))
     
 
 def gif_applier():
@@ -248,8 +248,8 @@ Audio('welcome')
 playerdeath=False
 
 from fur_shader import *
-ground = Entity(model='plane', scale=1000, texture='grass', texture_scale=Vec2(1000), collider='box')
-#grass = Fur(entity=ground, scale=500000, layers=3, layerSize=0.005, shadow=20)
+ground = Entity(model='plane', scale=1000, texture='grass', texture_scale=(31.6227766017,31.6227766017), collider='box')
+#grass = Fur(entity=ground, scale=800, layers=3, layerSize=0.005, shadow=20)
 
 window.exit_button.visible=False
 window.fps_counter.enabled=True
