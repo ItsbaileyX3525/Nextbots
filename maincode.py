@@ -247,9 +247,9 @@ window.color = color.white
 Audio('welcome')
 playerdeath=False
 
-
-ground = Entity(model='plane', scale=1000, texture='grass', texture_scale=Vec2(32), collider='box')
-
+from fur_shader import *
+ground = Entity(model='plane', scale=1000, texture='grass', texture_scale=Vec2(1000), collider='box')
+#grass = Fur(entity=ground, scale=500000, layers=3, layerSize=0.005, shadow=20)
 
 window.exit_button.visible=False
 window.fps_counter.enabled=True
