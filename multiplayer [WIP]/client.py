@@ -3,26 +3,24 @@ from ursina import *
 from random import *
 from ursina.prefabs.first_person_controller import FirstPersonController
 from ursinanetworking import *
+from direct.actor.Actor import *
 
 class Player(FirstPersonController):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.mouse_sensitivity = (155, 155)
-
+        self.actor=Actor("player.glb")
+        self.actor.loop("idle")
+        self.actor.reparentTo(self)
+        self.actor.setScale(0.018)
+        self.actor.setHpr(180,0,0)
+        x,y,z=self.actor.getPos()
+        self.actor.setPos(x,1,1)
 class PlayerRepresentation(Entity):
     def __init__(self, position = (5,5,5)):
-        super().__init__(
-            parent = scene,
-            position = position,
-            model = "player.glb",
-            color = color.white,
-            origin_y = .5,
-            color = color.white,
-            highlight_color = color.white,
-            scale = (0.5, 1, 0.5)
-        )
-        print("HELLO !")
+        super().__init__(parent = scene,position = position,origin_y = .5,model='player.glb',scale=0.018)
 
+        
 
 App = Ursina()
 Client = UrsinaNetworkingClient("localhost", 25565)
@@ -64,6 +62,7 @@ def onReplicatedVariableCreated(variable):
     elif variable_type == "player":
         PlayersTargetPos[variable_name] = Vec3(0, 0, 0)
         Players[variable_name] = PlayerRepresentation()
+        Players[variable_name].loop("idle")
         if SelfId == int(variable.content["id"]):
             Players[variable_name].color = color.red
             Players[variable_name].visible = False

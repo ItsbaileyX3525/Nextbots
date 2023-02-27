@@ -150,20 +150,7 @@ class Nextbot(Entity): #Nextbot class for creating new nextbots
                 rotate_interval = LerpHprInterval(self, delay, (ra.uniform(0,260),0,0))
                 rotate_interval.start()
         invoke(self.Nextbot_move, delay=delay)
-"""import pyopencl as cl
 
-platforms = cl.get_platforms()
-shaders=False
-for platform in platforms:
-    vendor = platform.vendor
-    if "amd" in vendor.lower():
-        print("AMD GPU detected")
-        shaders=False
-        # Perform actions specific to AMD GPU
-    else:
-        print("Non-AMD GPU detected")
-        shaders=True
-        # Perform actions specific to non-AMD GPU"""
 window.title="Nextbots"
 
 window.fullscreen=False
