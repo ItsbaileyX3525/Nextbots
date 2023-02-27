@@ -7,9 +7,11 @@ Nextbots V8:
 - Added difficulties to the game
 - Fixed a bug where Armstrong texture wouldnt work if phonk hadn't spawned yet
 - Fixed the bug where sound would play of the nextbot for a split second at beginning
+- Player animations Revamped big time (lerp animations no more janky)
+- Multiplayer now works (no nextbots, sprinting etc.)
 Known bugs:
-- Player animations dont work if you hold down 'w' and then hold down 's' and release 's' it'll keep you idle does this with every combination
-- Jumpscare bg are transparent (still cba making them not rn)
+
+- THERE ARE KNOWN BUGS :) - report any bugs to my discord server!
 
 Notes:
 If you can't hear the music you have the copyright-free version and you can find the songs you need in the songs.txt file
@@ -20,26 +22,11 @@ from ursina import *
 from ursina.prefabs.first_person_controller import FirstPersonController
 from ursina.prefabs.health_bar import HealthBar
 import random as ra
+from direct.interval.IntervalGlobal import LerpHprInterval
+from direct.interval.ActorInterval import LerpAnimInterval
 from direct.actor.Actor import Actor
 from pandac.PandaModules import TransparencyAttrib
 from ursina.prefabs.health_bar import HealthBar
-from panda3d.core import Texture
-from direct.interval.IntervalGlobal import LerpHprInterval, ActorInterval
-
-window.title="Nextbots"
-
-window.fullscreen=False
-window.borderless=False
-window.icon="assets/misc/papyrus.ico"
-
-
-
-
-
-"""Character"""
-
-
-
 
 
 class Character(Entity): # Player model, attaches to the Harlod (FPC)
@@ -51,53 +38,58 @@ class Character(Entity): # Player model, attaches to the Harlod (FPC)
         self.actor.setHpr(180,0,0)
         x,y,z=self.actor.getPos()
         self.actor.setPos(x,.9,1)
-        self.idle=ActorInterval(self.actor, "idle")
-        self.run=ActorInterval(self.actor, "run")
-        self.runbackward=ActorInterval(self.actor, "run backwards")
-        self.walk=ActorInterval(self.actor, "walk")
-        self.walkbackward=ActorInterval(self.actor, "walk backwards")
-        self.straferight=ActorInterval(self.actor, "strafe right")
-        self.strafeleft=ActorInterval(self.actor, "strafe left")
-        self.idle.loop()
+        self.actor.loop("idle")
         self.actor.ls()
+        self.current_anim=None
+    def AnimLoop(self,toanim,rate=1,part=None):
+        fromanim=self.actor.get_current_anim()
+        self.actor.enableBlend()
+        self.actor.loop(str(toanim), partName=part)
+        self.actor.setPlayRate(rate,toanim,partName=part)
+        if self.current_anim!=None:
+            Interv=LerpAnimInterval(self.actor, 0.25, self.current_anim, toanim, partName=part)
+        else:
+            Interv=LerpAnimInterval(self.actor, 0.25, fromanim, toanim, partName=part)
+        print(self.actor.getCurrentAnim())
+        Interv.start()
+        self.current_anim=toanim
+    
     def input(self, key):
-        if key == 'w' and not held_keys['shift']:
-            self.walk.loop()
-        elif key == 'w' and  held_keys['shift']:
-            self.run.loop()
+        if key=='w':
+            self.AnimLoop(toanim="walk")
+        elif key=='w' and held_keys['shift']:
+            self.AnimLoop(toanim="run")
         elif held_keys['w'] and key=='shift':
-            self.run.loop()
-        elif key == 's' and not held_keys['shift']:
-            self.walkbackward.loop()
-        elif key=='s'  and held_keys['shift']:
-            self.runbackward.loop()
-        elif held_keys['s'] and key=='shift':
-            self.runbackward.loop()
-        elif key == 'a':
-            self.strafeleft.loop()
-        elif key == 'd':
-            self.straferight.loop()
-        elif key == 'd up':
-            self.idle.loop()
-        elif key == 'a up':
-            self.idle.loop()
-        elif key == 's up':
-            self.idle.loop()
-        elif key == 'w up':
-            self.idle.loop()
+            self.AnimLoop(toanim="run")
+        elif held_keys['shift'] and key=='s':
+            self.AnimLoop(toanim="walk backwards")
+        elif held_keys['shift'] and key=='w':
+            self.AnimLoop(toanim="walk")
+        elif key=='a':
+            self.AnimLoop(toanim="strafe left")
+        elif key=='d':
+            self.AnimLoop(toanim="strafe right")
+        elif key=='s':
+            self.AnimLoop(toanim="walk backwards")
+        elif key=='s' and held_keys['shift']:
+            self.AnimLoop(toanim="run backwards")
+        elif key=='shift' and held_keys['s']:
+            self.AnimLoop(toanim="run backwards")
+        elif key == 'd up' and not held_keys['a'] and not held_keys['s'] and not held_keys['w']:
+            self.AnimLoop(toanim="idle")
+        elif key == 'a up'and not held_keys['d'] and not held_keys['s'] and not held_keys['w']:
+            self.AnimLoop(toanim="idle")
+        elif key == 's up'and not held_keys['a'] and not held_keys['d'] and not held_keys['w']:
+            self.AnimLoop(toanim="idle")
+        elif key == 'w up'and not held_keys['a'] and not held_keys['s'] and not held_keys['d']:
+            self.AnimLoop(toanim="idle")
         elif key=='shift up' and held_keys['w']:
-            self.walk.loop()
+            self.AnimLoop(toanim="walk")
         elif key=='shift up' and held_keys['s']:
-            self.walkbackward.loop()
+            self.AnimLoop(toanim="walk backwards")
 
 
-
-
-"""Character"""
-
-
-
-
+sus=Entity()
 class Nextbot(Entity): #Nextbot class for creating new nextbots
     def __init__(self, texture, chase_sound, death_sound, death_texture,chase_speed,wonder_speed, **kwargs):
         super().__init__(parent=sus, model='quad', texture=texture, scale_y=3,scale_x=3, collider='box', y=2, double_sided=True, **kwargs)
@@ -114,7 +106,6 @@ class Nextbot(Entity): #Nextbot class for creating new nextbots
         self.Nextbot_rotate()
         self.chase_sound.volume=0
         self.chase_sound.play()
-
     def update(self):
         self.dist = distance(Harlod.position, self.position)
         volume = max(1 - self.dist / self.max_distance, 0)
@@ -159,15 +150,33 @@ class Nextbot(Entity): #Nextbot class for creating new nextbots
                 rotate_interval = LerpHprInterval(self, delay, (ra.uniform(0,260),0,0))
                 rotate_interval.start()
         invoke(self.Nextbot_move, delay=delay)
+"""import pyopencl as cl
+
+platforms = cl.get_platforms()
+shaders=False
+for platform in platforms:
+    vendor = platform.vendor
+    if "amd" in vendor.lower():
+        print("AMD GPU detected")
+        shaders=False
+        # Perform actions specific to AMD GPU
+    else:
+        print("Non-AMD GPU detected")
+        shaders=True
+        # Perform actions specific to non-AMD GPU"""
+window.title="Nextbots"
+
+window.fullscreen=False
+window.borderless=False
+window.icon="assets/misc/papyrus.ico"
+
 
 
 
 app=Ursina()
 
-
 editor_camera = EditorCamera(enabled=False)
 sus=Entity()
-
 
 health_bar_1 = HealthBar(bar_color=color.yellow, roundness=.5,value=100,z=100)
 health_bar_2 = HealthBar(bar_color=color.red, roundness=.5,value=100,y=-66,x=-.8,z=100,scale=(.3,.015),show_text=False)
@@ -175,9 +184,9 @@ health_bar_1.animation_duration = 0
 health_bar_2.animation_duration = 0
 
 HardmodeEnabled=False
-EasymodeEnabled=True
+EasymodeEnabled=False
 PeacefulmodeEnabled=False
-GenerativemodeEnabled=False
+GenerativemodeEnabled=True
 
 def Peacefulmode():
     global EasymodeEnabled,HardmodeEnabled,PeacefulmodeEnabled,GenerativemodeEnabled
@@ -237,17 +246,18 @@ def Generatemode():
         Peaceful.text='Peaceful mode off'
 
 Peaceful=Button(text='Peaceful mode off',y=-.3,scale_y=.1,scale_x=.2,x=-.5,on_click=Peacefulmode)
-Easy=Button(text='Easy mode on',y=-.3,scale_y=.1,scale_x=.2,x=.5,on_click=Easymode)
+Easy=Button(text='Easy mode off',y=-.3,scale_y=.1,scale_x=.2,x=.5,on_click=Easymode)
 Hard=Button(text='Hard mode off',y=-.3,scale_y=.1,scale_x=.2,on_click=Hardmode)
-Generative=Button(text='Special mode off',y=.4,scale_y=.1,scale_x=.2,on_click=Generatemode)
+Generative=Button(text='Special mode on',y=.4,scale_y=.1,scale_x=.2,on_click=Generatemode)
 ObungaNextbot=None
 PhonkNextbot=None
+JohnNextbot=None
 TycreatureNextbot=None
 AndrewNextbot=None
 AngymunciNextbot=None
 ArmstrongNextbot=None
 def game_begin():
-    global EasymodeEnabled,HardmodeEnabled,PeacefulmodeEnabled,GenerativemodeEnabled,load_bg,start,health_bar_2,health_bar_1,nextbot1_1,nextbot1_2,nextbot1_3,nextbot1_4,nextbot1_5,nextbot1_6,PhonkNextbot,ArmstrongNextbot,ArmstrongNextbot,ObungaNextbot,TycreatureNextbot,AndrewNextbot,AngymunciNextbot
+    global EasymodeEnabled,HardmodeEnabled,PeacefulmodeEnabled,GenerativemodeEnabled,load_bg,start,health_bar_2,health_bar_1,nextbot1_1,nextbot1_2,nextbot1_3,nextbot1_4,nextbot1_5,nextbot1_6,PhonkNextbot,ArmstrongNextbot,ArmstrongNextbot,ObungaNextbot,TycreatureNextbot,JohnNextbot,AndrewNextbot,AngymunciNextbot
     if not EasymodeEnabled and not HardmodeEnabled and not PeacefulmodeEnabled and not GenerativemodeEnabled:
         EasymodeEnabled=True
     Harlod.speed=8
@@ -274,53 +284,58 @@ def game_begin():
     nextbot1_5=False
     nextbot1_6=False
     if HardmodeEnabled:
-        PhonkNextbot=Nextbot(texture='assets/textures/phonk.png', chase_sound=PhonkChase, death_sound=death, death_texture='assets/textures/phonk.gif',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
-        ObungaNextbot=Nextbot(texture='assets/textures/obunga.png', chase_sound=obungachase, death_sound=death, death_texture='assets/textures/obunga.png',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
+        PhonkNextbot=Nextbot(texture='assets/textures/phonk.png', chase_sound=PhonkChase, death_sound=jumpscare, death_texture='assets/textures/phonk.gif',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
+        ObungaNextbot=Nextbot(texture='assets/textures/obunga.png', chase_sound=obungachase, death_sound=jumpscare, death_texture='assets/textures/obunga.png',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
         TycreatureNextbot=Nextbot(texture='assets/textures/saddydaddy.png', chase_sound=AutismCreatureChase, death_sound=Yippedeath, death_texture='assets/textures/saddydaddy.png',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
-        AndrewNextbot=Nextbot(texture='assets/textures/andrew.png', chase_sound=tateyChase, death_sound=death, death_texture='assets/textures/andrew.png',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
-        AngymunciNextbot=Nextbot(texture='assets/textures/angy munci.png', chase_sound=muncichase, death_sound=death, death_texture='assets/textures/angy munci.png',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
-        ArmstrongNextbot=Nextbot(texture='assets/textures/phonk.png', chase_sound=armstrongchase, death_sound=death, death_texture='assets/textures/armstrong.gif',chase_speed=14,wonder_speed=10,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
+        AndrewNextbot=Nextbot(texture='assets/textures/andrew.png', chase_sound=tateyChase, death_sound=jumpscare, death_texture='assets/textures/andrew.png',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
+        AngymunciNextbot=Nextbot(texture='assets/textures/angy munci.png', chase_sound=muncichase, death_sound=jumpscare, death_texture='assets/textures/angy munci.png',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
+        ArmstrongNextbot=Nextbot(texture='assets/textures/phonk.png', chase_sound=armstrongchase, death_sound=jumpscare, death_texture='assets/textures/armstrong.gif',chase_speed=14,wonder_speed=10,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
     elif PeacefulmodeEnabled:
         pass
     elif EasymodeEnabled:
         num1=ra.randint(1,3)
         num2=ra.randint(1,3)
         if num1==1:
-            PhonkNextbot=Nextbot(texture='assets/textures/phonk.png', chase_sound=PhonkChase, death_sound=death, death_texture='assets/textures/phonk.gif',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
+            PhonkNextbot=Nextbot(texture='assets/textures/phonk.png', chase_sound=PhonkChase, death_sound=jumpscare, death_texture='assets/textures/phonk.gif',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
         elif num1==2:
-            ObungaNextbot=Nextbot(texture='assets/textures/obunga.png', chase_sound=obungachase, death_sound=death, death_texture='assets/textures/obunga.png',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
+            ObungaNextbot=Nextbot(texture='assets/textures/obunga.png', chase_sound=obungachase, death_sound=jumpscare, death_texture='assets/textures/obunga.png',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
         elif num1==3:
             TycreatureNextbot=Nextbot(texture='assets/textures/saddydaddy.png', chase_sound=AutismCreatureChase, death_sound=Yippedeath, death_texture='assets/textures/saddydaddy.png',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
         if num2==1:
-            AndrewNextbot=Nextbot(texture='assets/textures/andrew.png', chase_sound=tateyChase, death_sound=death, death_texture='assets/textures/andrew.png',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
+            AndrewNextbot=Nextbot(texture='assets/textures/andrew.png', chase_sound=tateyChase, death_sound=jumpscare, death_texture='assets/textures/andrew.png',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
         elif num2==2:
-            AngymunciNextbot=Nextbot(texture='assets/textures/angy munci.png', chase_sound=muncichase, death_sound=death, death_texture='assets/textures/angy munci.png',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
+            AngymunciNextbot=Nextbot(texture='assets/textures/angy munci.png', chase_sound=muncichase, death_sound=jumpscare, death_texture='assets/textures/angy munci.png',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
         elif num2==3:
-            ArmstrongNextbot=Nextbot(texture='assets/textures/phonk.png', chase_sound=armstrongchase, death_sound=death, death_texture='assets/textures/armstrong.gif',chase_speed=14,wonder_speed=10,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
+            ArmstrongNextbot=Nextbot(texture='assets/textures/phonk.png', chase_sound=armstrongchase, death_sound=jumpscare, death_texture='assets/textures/armstrong.gif',chase_speed=14,wonder_speed=10,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
     elif GenerativemodeEnabled:
         Entity(update=specialmode)
-        ObungaNextbot=Nextbot(texture='assets/textures/obunga.png', chase_sound=obungachase, death_sound=death, death_texture='assets/textures/obunga.png',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
+        ObungaNextbot=Nextbot(texture='assets/textures/obunga.png', chase_sound=obungachase, death_sound=jumpscare, death_texture='assets/textures/obunga.png',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
 timer=0
 
 def specialmode():
-    global timer,PhonkNextbot,ArmstrongNextbot,ArmstrongNextbot,ObungaNextbot,TycreatureNextbot,AndrewNextbot,AngymunciNextbot
+    global timer,PhonkNextbot,ArmstrongNextbot,ArmstrongNextbot,ObungaNextbot,TycreatureNextbot,AndrewNextbot,AngymunciNextbot,JohnNextbot
     timer+=time.dt
     if timer>=10:
         if PhonkNextbot==None:
-            PhonkNextbot=Nextbot(texture='assets/textures/phonk.png', chase_sound=PhonkChase, death_sound=death, death_texture='assets/textures/phonk.gif',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
+            PhonkNextbot=Nextbot(texture='assets/textures/phonk.png', chase_sound=PhonkChase, death_sound=jumpscare, death_texture='assets/textures/phonk.gif',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
     if timer>=20:
         if TycreatureNextbot==None:
             TycreatureNextbot=Nextbot(texture='assets/textures/saddydaddy.png', chase_sound=AutismCreatureChase, death_sound=Yippedeath, death_texture='assets/textures/saddydaddy.png',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
     if timer>=30:
         if AndrewNextbot==None:
-            AndrewNextbot=Nextbot(texture='assets/textures/andrew.png', chase_sound=tateyChase, death_sound=death, death_texture='assets/textures/andrew.png',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
+            AndrewNextbot=Nextbot(texture='assets/textures/andrew.png', chase_sound=tateyChase, death_sound=jumpscare, death_texture='assets/textures/andrew.png',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
     if timer>=40:
         if ArmstrongNextbot==None:
-            ArmstrongNextbot=Nextbot(texture='assets/textures/phonk.png', chase_sound=armstrongchase, death_sound=death, death_texture='assets/textures/armstrong.gif',chase_speed=14,wonder_speed=10,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
+            ArmstrongNextbot=Nextbot(texture='assets/textures/phonk.png', chase_sound=armstrongchase, death_sound=jumpscare, death_texture='assets/textures/armstrong.gif',chase_speed=14,wonder_speed=10,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
     if timer>=50:
         if AngymunciNextbot==None:
-            AngymunciNextbot=Nextbot(texture='assets/textures/angy munci.png', chase_sound=muncichase, death_sound=death, death_texture='assets/textures/angy munci.png',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
-
+            AngymunciNextbot=Nextbot(texture='assets/textures/angy munci.png', chase_sound=muncichase, death_sound=jumpscare, death_texture='assets/textures/angy munci.png',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
+    if timer>=80:
+        if JohnNextbot==None:
+            camera.shake(duration=3,magnitude=5)
+            johnspawned=Text(text='JOHN HAS BEEN SPAWNED RUN FOR YOUR LIFE',x=-.3,y=.3)
+            destroy(johnspawned,delay=2)
+            JohnNextbot=Nextbot(texture='assets/textures/john.png', chase_sound=muncichase, death_sound=jumpscare, death_texture='assets/textures/john.png',chase_speed=16,wonder_speed=12,x=ra.uniform(-80,80),z=ra.uniform(-80,80),scale=5)
 armstrong_texture = Animation('assets/textures/armstrong.gif',y=-4)
 armstrong_texture1 = Animation('assets/textures/armstrong.gif',y=-4)
 phonk_texture = Animation('assets/textures/phonk.gif',y=-4)
@@ -419,7 +434,7 @@ def respawn_screen():
         Harlod.cursor.enabled = not editor_camera.enabled
         mouse.locked = not editor_camera.enabled
         def action():
-            global nomove,Nextbotted1
+            global nomove
             ButtonClick.play()
             editor_camera.enabled = not editor_camera.enabled
             Harlod.cursor.enabled = not editor_camera.enabled
@@ -427,7 +442,7 @@ def respawn_screen():
             editor_camera.scripts.remove(deathL)
             Harlod.x=ra.uniform(0,50)
             nomove=False
-            Crowbar1.clearTransparency()
+            Crowbar1.setPos(.35,-.5,.8) 
             button.visible=False
             button.disabled=True
             button2.visible=False
@@ -445,7 +460,6 @@ playerdeath=False
 
 Sky()
 
-
 def input(key):
     if key=='f12':
         if window.fullscreen:
@@ -455,13 +469,12 @@ def input(key):
 seq1=False
 
 health_regen_timer = 0
-
 def update():
-    global playerdeath, seq1, health_regen_timer,respawn,Nextbotted1
+    global playerdeath, seq1, health_regen_timer,respawn
     round(health_bar_1.value, 1)
     if playerdeath == True:
         if not seq1:
-            Crowbar1.setTransparency(TransparencyAttrib.M_alpha)
+            Crowbar1.setPos(.35,765675,.8)
             seq1 = True
             Harlod.position-=Harlod.forward
         if Harlod.y==1:
