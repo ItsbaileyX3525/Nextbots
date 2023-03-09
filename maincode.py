@@ -5,7 +5,7 @@ Discord server: https://discord.gg/e8fKE7xAKz
 Update log:
 Nextbots V9:
 - Fixed the gamemode selector displaying incorrect text
-- Game loading time should be 1.5-2x faster
+- Game loading time should be 1.5-2x faster (5 second loading time down to 2)
 Known bugs:
 
 - THERE ARE KNOWN BUGS :) - report any bugs to my discord server!
@@ -408,10 +408,7 @@ window.color = color.white
 Audio('welcome')
 playerdeath=False
 
-from fur_shader import Fur
-#CakedGround = Entity(model="cube",collider='box', color=color.white, texture="grass",scale=(1000,0.1,1000),texture_scale=(31.6227766017,1,31.6227766017))
 ground = Entity(model='plane', scale=1000, texture='grass', texture_scale=(31.6227766017,31.6227766017), collider='box')
-#grass = Fur(entity=cube, scale=30000, layers=3, layerSize=0.005, shadow=20)
 
 window.exit_button.visible=False
 window.fps_counter.enabled=True
@@ -442,8 +439,10 @@ Crowbar1.loop("swing")
 
 nomove=False
 respawn=False
+
 button=Button(icon=False,text='Respawn?',highlightcolor=color.orange,scale=(0.25,0.1),color=color.rgb(0,0,150),text_color=color.black,y=.2,disabled=True,visible=False)
 button2=Button(icon=False,text="Rage quit?",scale=(0.5,0.1),text_color=color.black,color=color.rgb(0,0,150),y=-.2,disabled=True,visible=False)
+
 def respawn_screen():
     global respawn,deathL,nomove
     respawn=True
@@ -480,7 +479,10 @@ def respawn_screen():
 
 playerdeath=False
 
-Sky()
+def load_sky():
+    Sky()
+sky_thread = threading.Thread(target=load_sky)
+sky_thread.start()
 
 def input(key):
     if key=='f12':

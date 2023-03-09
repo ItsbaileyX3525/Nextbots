@@ -15,13 +15,13 @@ This does work through IDE but better for EXE
 
 
 from ursina import *
+import threading
 from ursina.prefabs.first_person_controller import FirstPersonController
 from ursina.prefabs.health_bar import HealthBar
 import random as ra
 from direct.interval.IntervalGlobal import LerpHprInterval
 from direct.interval.ActorInterval import LerpAnimInterval
 from direct.actor.Actor import Actor
-from pandac.PandaModules import TransparencyAttrib
 from ursina.prefabs.health_bar import HealthBar
 from direct.showbase.Loader import Loader
 
@@ -475,9 +475,13 @@ def respawn_screen():
 
 
 playerdeath=False
-application.asset_folder=preasset
 
-Sky()
+def load_sky():
+    application.asset_folder=preasset
+    Sky()
+sky_thread = threading.Thread(target=load_sky)
+sky_thread.start()
+
 application.asset_folder=resource_path("player.glb")
 def input(key):
     if key=='f12':
