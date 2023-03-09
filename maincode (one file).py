@@ -163,15 +163,15 @@ class Nextbot(Entity): #Nextbot class for creating new nextbots
                 rotate_interval = LerpHprInterval(self, delay, (ra.uniform(0,260),0,0))
                 rotate_interval.start()
         invoke(self.Nextbot_move, delay=delay)
+LoadingText=Text(text='Loading assets',enabled=False,x=-.7,y=.45)
 
 window.title="Nextbots"
 
 window.fullscreen=False
-window.borderless=False
 window.icon="assets/misc/papyrus.ico"
 
 
-app=Ursina()
+app=Ursina(borderless=False)
 editor_camera = EditorCamera(enabled=False)
 preasset=application.asset_folder
 application.asset_folder=resource_path("player.glb")
@@ -255,59 +255,63 @@ AndrewNextbot=None
 AngymunciNextbot=None
 ArmstrongNextbot=None
 def game_begin():
-    global EasymodeEnabled,HardmodeEnabled,PeacefulmodeEnabled,GenerativemodeEnabled,load_bg,start,health_bar_2,health_bar_1,nextbot1_1,nextbot1_2,nextbot1_3,nextbot1_4,nextbot1_5,nextbot1_6,PhonkNextbot,ArmstrongNextbot,ArmstrongNextbot,ObungaNextbot,TycreatureNextbot,JohnNextbot,AndrewNextbot,AngymunciNextbot
-    if not EasymodeEnabled and not HardmodeEnabled and not PeacefulmodeEnabled and not GenerativemodeEnabled:
-        EasymodeEnabled=True
-    Harlod.speed=8
-    ButtonClick.play()
-    load_bg.enabled=False
-    Hard.disabled=False
-    Hard.visible=False
-    Easy.disabled=False
-    Easy.visible=False
-    Generative.disabled=False
-    Generative.visible=False
-    Peaceful.disabled=False
-    Peaceful.visible=False
-    start.disabled=True
-    start.visible=False
-    mouse.locked=True
-    health_bar_2.z=0
-    health_bar_1.z=0
-    #Nextbot setup
-    nextbot1_1=False
-    nextbot1_2=False
-    nextbot1_3=False
-    nextbot1_4=False
-    nextbot1_5=False
-    nextbot1_6=False
-    if HardmodeEnabled:
-        PhonkNextbot=Nextbot(texture='phonk.png', chase_sound=PhonkChase, death_sound=jumpscare, death_texture='phonk.gif',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
-        ObungaNextbot=Nextbot(texture='obunga.png', chase_sound=obungachase, death_sound=jumpscare, death_texture='obunga.png',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
-        TycreatureNextbot=Nextbot(texture='saddydaddy.png', chase_sound=AutismCreatureChase, death_sound=Yippedeath, death_texture='saddydaddy.png',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
-        AndrewNextbot=Nextbot(texture='andrew.png', chase_sound=tateyChase, death_sound=jumpscare, death_texture='andrew.png',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
-        AngymunciNextbot=Nextbot(texture='angy munci.png', chase_sound=muncichase, death_sound=jumpscare, death_texture='angy munci.png',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
-        ArmstrongNextbot=Nextbot(texture='phonk.png', chase_sound=armstrongchase, death_sound=jumpscare, death_texture='armstrong.gif',chase_speed=14,wonder_speed=10,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
-    elif PeacefulmodeEnabled:
-        pass
-    elif EasymodeEnabled:
-        num1=ra.randint(1,3)
-        num2=ra.randint(1,3)
-        if num1==1:
-            PhonkNextbot=Nextbot(texture='phonk.png', chase_sound=PhonkChase, death_sound=jumpscare, death_texture='phonk.gif',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
-        elif num1==2:
-            ObungaNextbot=Nextbot(texture='obunga.png', chase_sound=obungachase, death_sound=jumpscare, death_texture='obunga.png',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
-        elif num1==3:
-            TycreatureNextbot=Nextbot(texture='saddydaddy.png', chase_sound=AutismCreatureChase, death_sound=Yippedeath, death_texture='saddydaddy.png',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
-        if num2==1:
-            AndrewNextbot=Nextbot(texture='andrew.png', chase_sound=tateyChase, death_sound=jumpscare, death_texture='andrew.png',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
-        elif num2==2:
-            AngymunciNextbot=Nextbot(texture='angy munci.png', chase_sound=muncichase, death_sound=jumpscare, death_texture='angy munci.png',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
-        elif num2==3:
-            ArmstrongNextbot=Nextbot(texture='phonk.png', chase_sound=armstrongchase, death_sound=jumpscare, death_texture='armstrong.gif',chase_speed=14,wonder_speed=10,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
-    elif GenerativemodeEnabled:
-        Entity(update=specialmode)
-        ObungaNextbot=Nextbot(texture='obunga.png', chase_sound=obungachase, death_sound=jumpscare, death_texture='obunga.png',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
+    try:
+        global EasymodeEnabled,HardmodeEnabled,PeacefulmodeEnabled,GenerativemodeEnabled,load_bg,start,health_bar_2,health_bar_1,nextbot1_1,nextbot1_2,nextbot1_3,nextbot1_4,nextbot1_5,nextbot1_6,PhonkNextbot,ArmstrongNextbot,ArmstrongNextbot,ObungaNextbot,TycreatureNextbot,JohnNextbot,AndrewNextbot,AngymunciNextbot
+        if not EasymodeEnabled and not HardmodeEnabled and not PeacefulmodeEnabled and not GenerativemodeEnabled:
+            EasymodeEnabled=True
+        Harlod.speed=8
+        ButtonClick.play()
+        load_bg.enabled=False
+        Hard.disabled=False
+        Hard.visible=False
+        Easy.disabled=False
+        Easy.visible=False
+        Generative.disabled=False
+        Generative.visible=False
+        Peaceful.disabled=False
+        Peaceful.visible=False
+        start.disabled=True
+        start.visible=False
+        mouse.locked=True
+        health_bar_2.z=0
+        health_bar_1.z=0
+        #Nextbot setup
+        nextbot1_1=False
+        nextbot1_2=False
+        nextbot1_3=False
+        nextbot1_4=False
+        nextbot1_5=False
+        nextbot1_6=False
+        if HardmodeEnabled:
+            PhonkNextbot=Nextbot(texture='assets/textures/phonk.png', chase_sound=PhonkChase, death_sound=jumpscare, death_texture='assets/textures/phonk.gif',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
+            ObungaNextbot=Nextbot(texture='assets/textures/obunga.png', chase_sound=obungachase, death_sound=jumpscare, death_texture='assets/textures/obunga.png',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
+            TycreatureNextbot=Nextbot(texture='assets/textures/saddydaddy.png', chase_sound=AutismCreatureChase, death_sound=Yippedeath, death_texture='assets/textures/saddydaddy.png',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
+            AndrewNextbot=Nextbot(texture='assets/textures/andrew.png', chase_sound=tateyChase, death_sound=jumpscare, death_texture='assets/textures/andrew.png',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
+            AngymunciNextbot=Nextbot(texture='assets/textures/angy munci.png', chase_sound=muncichase, death_sound=jumpscare, death_texture='assets/textures/angy munci.png',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
+            ArmstrongNextbot=Nextbot(texture='assets/textures/phonk.png', chase_sound=armstrongchase, death_sound=jumpscare, death_texture='assets/textures/armstrong.gif',chase_speed=14,wonder_speed=10,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
+        elif PeacefulmodeEnabled:
+            pass
+        elif EasymodeEnabled:
+            num1=ra.randint(1,3)
+            num2=ra.randint(1,3)
+            if num1==1:
+                PhonkNextbot=Nextbot(texture='assets/textures/phonk.png', chase_sound=PhonkChase, death_sound=jumpscare, death_texture='assets/textures/phonk.gif',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
+            elif num1==2:
+                ObungaNextbot=Nextbot(texture='assets/textures/obunga.png', chase_sound=obungachase, death_sound=jumpscare, death_texture='assets/textures/obunga.png',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
+            elif num1==3:
+                TycreatureNextbot=Nextbot(texture='assets/textures/saddydaddy.png', chase_sound=AutismCreatureChase, death_sound=Yippedeath, death_texture='assets/textures/saddydaddy.png',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
+            if num2==1:
+                AndrewNextbot=Nextbot(texture='assets/textures/andrew.png', chase_sound=tateyChase, death_sound=jumpscare, death_texture='assets/textures/andrew.png',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
+            elif num2==2:
+                AngymunciNextbot=Nextbot(texture='assets/textures/angy munci.png', chase_sound=muncichase, death_sound=jumpscare, death_texture='assets/textures/angy munci.png',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
+            elif num2==3:
+                ArmstrongNextbot=Nextbot(texture='assets/textures/phonk.png', chase_sound=armstrongchase, death_sound=jumpscare, death_texture='assets/textures/armstrong.gif',chase_speed=14,wonder_speed=10,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
+        elif GenerativemodeEnabled:
+            Entity(update=specialmode)
+            ObungaNextbot=Nextbot(texture='assets/textures/obunga.png', chase_sound=obungachase, death_sound=jumpscare, death_texture='assets/textures/obunga.png',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
+    except Exception:
+        CantOpen=Text(text='Assets not loaded yet',y=.2,x=-.1)
+        destroy(CantOpen,delay=2)
 timer=0
 
 def specialmode():
@@ -365,18 +369,27 @@ def gif_applier(): #Makes the double-sided gif work for the nextbots
         pass
 Entity(update=gif_applier)
 #Audios
-Yippedeath=Audio('assets/audio/bong',loop=False,autoplay=False)
-armstrongchase=Audio('assets/audio/armstrong',loop=True,autoplay=False)
-muncichase=Audio('assets/audio/vacent1',loop=True,autoplay=False,volume=.8)
-obungachase=Audio('assets/audio/prowler',autoplay=False,loop=True)
-sanschase=Audio('assets/audio/megalovania',autoplay=False,loop=True)
-PhonkChase=Audio('assets/audio/Phonk',autoplay=False,loop=True)
-tateyChase=Audio('assets/audio/tate2',autoplay=False,loop=True)
-AutismCreatureChase=Audio('assets/audio/saddyclose',autoplay=False,loop=True)
-death=Audio('assets/audio/death',autoplay=False,loop=False,volume=2)
-jumpscare=Audio('assets/audio/jumpscare',autoplay=False,loop=False)
+async def LoadAudio(path, name=None, autoplay=False, loop=False,volume=1): #Smoothly loads audio files
+    global LoadingText,audioname
+    LoadingText.enabled=True
+    audioname=name
+    audioname = loader.loadSfx(path)
+    
+    audioname=Audio(audioname,autoplay=autoplay,loop=loop,volume=volume)
+    globals()[name] = audioname
+    LoadingText.enabled=False
+app.taskMgr.add(LoadAudio(path="assets/audio/bong.ogg",name="Yippedeath",autoplay=False,loop=True))
+app.taskMgr.add(LoadAudio(path="assets/audio/armstrong.ogg",name="armstrongchase",autoplay=False,loop=True))
+app.taskMgr.add(LoadAudio(path="assets/audio/vacent1.wav",name="muncichase",autoplay=False,loop=True,volume=0.8))
+app.taskMgr.add(LoadAudio(path="assets/audio/prowler.ogg",name="obungachase",autoplay=False,loop=True))
+app.taskMgr.add(LoadAudio(path="assets/audio/megalovania.ogg",name="sanschase",autoplay=False,loop=True))
+app.taskMgr.add(LoadAudio(path="assets/audio/Phonk.ogg",name="PhonkChase",autoplay=False,loop=True))
+app.taskMgr.add(LoadAudio(path="assets/audio/tate2.ogg",name="tateyChase",autoplay=False,loop=True))
+app.taskMgr.add(LoadAudio(path="assets/audio/saddyclose.ogg",name="AutismCreatureChase",autoplay=False,loop=True))
+app.taskMgr.add(LoadAudio(path="assets/audio/death.ogg",name="death",autoplay=False,loop=False,volume=2))
+app.taskMgr.add(LoadAudio(path="assets/audio/jumpscare.ogg",name="jumpscare",autoplay=False,loop=False))
+app.taskMgr.add(LoadAudio(path="assets/audio/button-click.ogg",name="ButtonClick",autoplay=False,loop=False))
 
-ButtonClick=Audio('assets/audio/button-click',autoplay=False,loop=False)
 application.asset_folder=preasset
 
 #main menu
