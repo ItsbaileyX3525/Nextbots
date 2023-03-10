@@ -36,16 +36,14 @@ def resource_path(relative_path):
     return os.path.join(base_path)
 player_path=resource_path("player.glb")
 quick_port=player_path
-nextbot_texture = player_path+"\\assets\\textures"
+nextbot_texture = player_path
 print(nextbot_texture)
 player_path = re.sub(r"(^[A-Za-z]):", lambda m: m.group(1).lower(), player_path).replace("\\", "/")
 player_path = "/"+player_path
 class Character(Entity): # Player model, attaches to the Harlod (FPC)
     def __init__(self):
         super().__init__()
-        self.loader=Loader(self)
-        self.actor_model=self.loader.loadModel(player_path+"/player.glb")
-        self.actor=Actor(self.actor_model)
+        self.actor=Player
         self.actor.reparentTo(Harlod)
         self.actor.setScale(0.018)
         self.actor.setHpr(180,0,0)
@@ -107,6 +105,7 @@ class Nextbot(Entity): #Nextbot class for creating new nextbots
     def __init__(self, texture, chase_sound, death_sound, death_texture,chase_speed,wonder_speed, **kwargs):
         super().__init__(parent=sus, model='quad', texture=load_texture(texture, nextbot_texture), scale_y=3,scale_x=3, collider='box', y=2, double_sided=True, **kwargs)
         self.chase_sound = chase_sound
+        print(player_path+"/"+texture)
         self.speed=chase_speed
         self.speed2=wonder_speed
         self.death_sound = death
@@ -169,9 +168,20 @@ window.title="Nextbots"
 
 window.fullscreen=False
 window.icon="assets/misc/papyrus.ico"
-
+skyLoaded=False
+async def LoadModelP3D(model, name=None,parent=scene): #Smoothly loads models
+    global LoadingText,modelname
+    LoadingText.enabled=True
+    modelname=name
+    modelname = await loader.loadModel(model, blocking=False)
+    
+    modelname=Actor(modelname)
+    modelname.reparentTo(parent)
+    globals()[name] = modelname
+    LoadingText.enabled=False
 
 app=Ursina(borderless=False)
+app.taskMgr.add(LoadModelP3D(model=player_path+"/player.glb",name="Player"))
 editor_camera = EditorCamera(enabled=False)
 preasset=application.asset_folder
 application.asset_folder=resource_path("player.glb")
@@ -260,6 +270,8 @@ def game_begin():
         if not EasymodeEnabled and not HardmodeEnabled and not PeacefulmodeEnabled and not GenerativemodeEnabled:
             EasymodeEnabled=True
         Harlod.speed=8
+        skyLoaded.color=color.red
+        HarlodModel=Character()
         ButtonClick.play()
         load_bg.enabled=False
         Hard.disabled=False
@@ -319,32 +331,40 @@ def specialmode():
     timer+=time.dt
     if timer>=10:
         if PhonkNextbot==None:
-            PhonkNextbot=Nextbot(texture='phonk.png', chase_sound=PhonkChase, death_sound=jumpscare, death_texture='phonk.gif',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
+            PhonkNextbot=Nextbot(texture='assets/textures/phonk.png', chase_sound=PhonkChase, death_sound=jumpscare, death_texture='phonk.gif',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
     if timer>=20:
         if TycreatureNextbot==None:
-            TycreatureNextbot=Nextbot(texture='saddydaddy.png', chase_sound=AutismCreatureChase, death_sound=Yippedeath, death_texture='saddydaddy.png',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
+            TycreatureNextbot=Nextbot(texture='assets/textures/saddydaddy.png', chase_sound=AutismCreatureChase, death_sound=Yippedeath, death_texture='saddydaddy.png',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
     if timer>=30:
         if AndrewNextbot==None:
-            AndrewNextbot=Nextbot(texture='andrew.png', chase_sound=tateyChase, death_sound=jumpscare, death_texture='andrew.png',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
+            AndrewNextbot=Nextbot(texture='assets/textures/andrew.png', chase_sound=tateyChase, death_sound=jumpscare, death_texture='andrew.png',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
     if timer>=40:
         if ArmstrongNextbot==None:
-            ArmstrongNextbot=Nextbot(texture='phonk.png', chase_sound=armstrongchase, death_sound=jumpscare, death_texture='armstrong.gif',chase_speed=14,wonder_speed=10,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
+            ArmstrongNextbot=Nextbot(texture='assets/textures/phonk.png', chase_sound=armstrongchase, death_sound=jumpscare, death_texture='armstrong.gif',chase_speed=14,wonder_speed=10,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
     if timer>=50:
         if AngymunciNextbot==None:
-            AngymunciNextbot=Nextbot(texture='angy munci.png', chase_sound=muncichase, death_sound=jumpscare, death_texture='angy munci.png',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
+            AngymunciNextbot=Nextbot(texture='assets/textures/angy munci.png', chase_sound=muncichase, death_sound=jumpscare, death_texture='angy munci.png',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
     if timer>=80:
         if JohnNextbot==None:
             camera.shake(duration=3,magnitude=5)
             johnspawned=Text(text='JOHN HAS BEEN SPAWNED RUN FOR YOUR LIFE',x=-.3,y=.3)
             destroy(johnspawned,delay=2)
-            JohnNextbot=Nextbot(texture='john.png', chase_sound=muncichase, death_sound=jumpscare, death_texture='john.png',chase_speed=16,wonder_speed=12,x=ra.uniform(-80,80),z=ra.uniform(-80,80),scale=5)
+            JohnNextbot=Nextbot(texture='assets/textures/john.png', chase_sound=muncichase, death_sound=jumpscare, death_texture='john.png',chase_speed=16,wonder_speed=12,x=ra.uniform(-80,80),z=ra.uniform(-80,80),scale=5)
 
 application.asset_folder=preasset
 
-armstrong_texture = Animation('armstrong.gif',y=-4)
-armstrong_texture1 = Animation('armstrong.gif',y=-4)
-phonk_texture = Animation('phonk.gif',y=-4)
-phonk_texture1 = Animation('phonk.gif',y=-4)
+def load_animation(path, y,name):
+    animation = Animation(path, y=y)
+    globals()[name] = animation
+
+def start_loading_animation(path, y,name=None):
+    loading_thread = threading.Thread(target=load_animation, args=(path, y, name))
+    loading_thread.start()
+
+start_loading_animation('armstrong.gif', y=-4,name="armstrong_texture")
+start_loading_animation('armstrong.gif', y=-4,name="armstrong_texture1")
+start_loading_animation('phonk.gif', y=-4,name="phonk_texture")
+start_loading_animation('phonk.gif', y=-4,name="phonk_texture1")
 
 
 def gif_applier(): #Makes the double-sided gif work for the nextbots
@@ -372,8 +392,9 @@ Entity(update=gif_applier)
 async def LoadAudio(path, name=None, autoplay=False, loop=False,volume=1): #Smoothly loads audio files
     global LoadingText,audioname
     LoadingText.enabled=True
-    audioname=name
-    audioname = loader.loadSfx(path)
+    dirpath=player_path+"/"+path
+    audioname = loader.loadSfx(dirpath)
+    
     
     audioname=Audio(audioname,autoplay=autoplay,loop=loop,volume=volume)
     globals()[name] = audioname
@@ -394,27 +415,21 @@ application.asset_folder=preasset
 
 #main menu
 load_bg=Entity(parent=camera.ui,model='quad',color=color.black,scale=(100,100))
-start=Button(text='Start game',disabled=False,scale=(.2,.1),z=-100,text_color=color.black,color=color.white,visible=True)
-start.on_click=game_begin
+start=Button(text='Start game',disabled=False,scale=(.2,.1),z=-100,text_color=color.black,color=color.white,visible=True,on_click=game_begin)
 window.color = color.white
 
 
 Audio('welcome',autoplay=True,loop=False)
 playerdeath=False
 
-from fur_shader import Fur
 application.asset_folder=preasset
-
-#CakedGround = Entity(model="cube",collider='box', color=color.white, texture="grass",scale=(1000,0.1,1000),texture_scale=(31.6227766017,1,31.6227766017))
 ground = Entity(model='plane', scale=1000, texture="grass", texture_scale=(31.6227766017,31.6227766017), collider='box')
-#grass = Fur(entity=cube, scale=30000, layers=3, layerSize=0.005, shadow=20)
 application.asset_folder=resource_path("player.glb")
 window.exit_button.visible=False
 window.fps_counter.enabled=True
 
 #Harlod/player stuff
 Harlod=FirstPersonController()
-HarlodModel=Character()
 mouse.locked=False
 Harlod.walkSpeed=6
 Harlod.runSpeed=17
@@ -423,9 +438,9 @@ healthtext=Text(text=f'{health_bar_2.value}/{health_bar_2.max_value}',x=-.5,y=-.
 healthtext1=Text(text='Health:',x=-.8,y=-.4)
 healthbox=Entity(alpha=.5,color=color.yellow)
 
-def healthupdate():
+"""def healthupdate():
     healthtext.text=f'{health_bar_2.value}/{health_bar_2.max_value}'
-Entity(update=healthupdate)
+Entity(update=healthupdate)"""
     
 #crorbar innit
 Crowbar_path=player_path+"/crowbar.glb"
@@ -477,10 +492,10 @@ def respawn_screen():
 playerdeath=False
 
 def load_sky():
+    global skyLoaded
     application.asset_folder=preasset
     Sky()
-sky_thread = threading.Thread(target=load_sky)
-sky_thread.start()
+    skyLoaded=Entity()
 
 application.asset_folder=resource_path("player.glb")
 def input(key):
@@ -528,5 +543,6 @@ def update():
         Harlod.speed = 0
 
 
-
+sky_thread = threading.Thread(target=load_sky)
+sky_thread.start()
 app.run()
