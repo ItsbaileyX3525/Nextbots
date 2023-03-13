@@ -7,6 +7,7 @@ Nextbots V9:
 - Fixed the gamemode selector displaying incorrect text
 - Fixed bug where player animations would glitch if you tried playing the same anim your currently doing
 - Game loading time should be 1.5-2x faster (5 second loading time down to 2)
+- Built my own Entity class to allow animtions and easy modifactions
 Known bugs:
 
 - THERE ARE KNOWN BUGS :) - report any bugs to my discord server!
@@ -29,7 +30,7 @@ from ursina.prefabs.health_bar import HealthBar
 
 class Character(AnimatedEntity):
     def __init__(self, **kwargs):
-        super().__init__(parent=Harlod,model=Player, position=(0,1,1),rotation=(0,180,0),scale=0.018,**kwargs)
+        super().__init__(parent=Harlod,model=Player, position=(0,.9,1),rotation=(0,180,0),scale=0.018,**kwargs)
         self.loop("idle")
 
     def input(self, key):
