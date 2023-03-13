@@ -5,6 +5,7 @@ Discord server: https://discord.gg/e8fKE7xAKz
 Update log:
 Nextbots V9:
 - Fixed the gamemode selector displaying incorrect text
+- Fixed bug where player animations would glitch if you tried playing the same anim your currently doing
 - Game loading time should be 1.5-2x faster (5 second loading time down to 2)
 Known bugs:
 
@@ -23,68 +24,47 @@ from panda3d.core import Loader
 from direct.interval.IntervalGlobal import LerpHprInterval
 from direct.interval.ActorInterval import LerpAnimInterval
 from direct.actor.Actor import Actor
-from pandac.PandaModules import TransparencyAttrib
 from ursina.prefabs.health_bar import HealthBar
 
 
-class Character(Entity): # Player model, attaches to the Harlod (FPC)
-    def __init__(self):
-        super().__init__()
-        self.actor=Player
-        self.actor.reparentTo(Harlod)
-        self.actor.setScale(0.018)
-        self.actor.setHpr(180,0,0)
-        x,y,z=self.actor.getPos()
-        self.actor.setPos(x,.9,1)
-        self.actor.loop("idle")
-        self.actor.ls()
-        self.current_anim=None
-    def AnimLoop(self,toanim,rate=1,part=None):
-        fromanim=self.actor.get_current_anim()
-        self.actor.enableBlend()
-        self.actor.loop(str(toanim), partName=part)
-        self.actor.setPlayRate(rate,toanim,partName=part)
-        if self.current_anim!=None:
-            Interv=LerpAnimInterval(self.actor, 0.25, self.current_anim, toanim, partName=part)
-        else:
-            Interv=LerpAnimInterval(self.actor, 0.25, fromanim, toanim, partName=part)
-        print(self.actor.getCurrentAnim())
-        Interv.start()
-        self.current_anim=toanim
-    
+class Character(AnimatedEntity):
+    def __init__(self, **kwargs):
+        super().__init__(parent=Harlod,model=Player, position=(0,1,1),rotation=(0,180,0),scale=0.018,**kwargs)
+        self.loop("idle")
+
     def input(self, key):
         if key=='w':
-            self.AnimLoop(toanim="walk")
+            self.LerpAnim(toanim="walk")
         elif key=='w' and held_keys['shift']:
-            self.AnimLoop(toanim="run")
+            self.LerpAnim(toanim="run")
         elif held_keys['w'] and key=='shift':
-            self.AnimLoop(toanim="run")
+            self.LerpAnim(toanim="run")
         elif held_keys['shift'] and key=='s':
-            self.AnimLoop(toanim="walk backwards")
+            self.LerpAnim(toanim="walk backwards")
         elif held_keys['shift'] and key=='w':
-            self.AnimLoop(toanim="walk")
+            self.LerpAnim(toanim="walk")
         elif key=='a':
-            self.AnimLoop(toanim="strafe left")
+            self.LerpAnim(toanim="strafe left")
         elif key=='d':
-            self.AnimLoop(toanim="strafe right")
+            self.LerpAnim(toanim="strafe right")
         elif key=='s':
-            self.AnimLoop(toanim="walk backwards")
+            self.LerpAnim(toanim="walk backwards")
         elif key=='s' and held_keys['shift']:
-            self.AnimLoop(toanim="run backwards")
+            self.LerpAnim(toanim="run backwards")
         elif key=='shift' and held_keys['s']:
-            self.AnimLoop(toanim="run backwards")
+            self.LerpAnim(toanim="run backwards")
         elif key == 'd up' and not held_keys['a'] and not held_keys['s'] and not held_keys['w']:
-            self.AnimLoop(toanim="idle")
+            self.LerpAnim(toanim="idle")
         elif key == 'a up'and not held_keys['d'] and not held_keys['s'] and not held_keys['w']:
-            self.AnimLoop(toanim="idle")
+            self.LerpAnim(toanim="idle")
         elif key == 's up'and not held_keys['a'] and not held_keys['d'] and not held_keys['w']:
-            self.AnimLoop(toanim="idle")
+            self.LerpAnim(toanim="idle")
         elif key == 'w up'and not held_keys['a'] and not held_keys['s'] and not held_keys['d']:
-            self.AnimLoop(toanim="idle")
+            self.LerpAnim(toanim="idle")
         elif key=='shift up' and held_keys['w']:
-            self.AnimLoop(toanim="walk")
+            self.LerpAnim(toanim="walk")
         elif key=='shift up' and held_keys['s']:
-            self.AnimLoop(toanim="walk backwards")
+            self.LerpAnim(toanim="walk backwards")
 
 
 sus=Entity()
@@ -157,21 +137,24 @@ window.icon="assets/misc/papyrus.ico"
 LoadingText=Text(text='Loading assets',enabled=False,x=-.7,y=.45)
 
 
-
-async def LoadModel(model, name=None,parent=scene): #Smoothly loads models
+async def LoadModel(model, name=None,parent=scene,actor=True): #Smoothly loads models
     global LoadingText,modelname
     LoadingText.enabled=True
     modelname=name
     modelname = await loader.loadModel(model, blocking=False)
     
-    modelname=Actor(modelname)
-    modelname.reparentTo(parent)
-    globals()[name] = modelname
+    if actor:
+        modelname=Actor(modelname)
+        modelname.reparentTo(parent)
+        globals()[name] = modelname
+    elif not actor:
+        globals()[name] = modelname
+    
     LoadingText.enabled=False
 
 
 app=Ursina(borderless=False)
-app.taskMgr.add(LoadModel(model="player.glb",name="Player"))
+app.taskMgr.add(LoadModel(model="player.glb",name="Player", actor=False))
 editor_camera = EditorCamera(enabled=False)
 sus=Entity()
 
