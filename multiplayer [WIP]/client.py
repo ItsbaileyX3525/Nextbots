@@ -1,26 +1,15 @@
-from re import A
+
+
 from ursina import *
 from random import *
 from ursina.prefabs.first_person_controller import FirstPersonController
+
 from ursinanetworking import *
-from direct.actor.Actor import *
 
-class Player(FirstPersonController):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.mouse_sensitivity = (155, 155)
-        self.actor=Actor("player.glb")
-        self.actor.loop("idle")
-        self.actor.reparentTo(self)
-        self.actor.setScale(0.018)
-        self.actor.setHpr(180,0,0)
-        x,y,z=self.actor.getPos()
-        self.actor.setPos(x,1,1)
-class PlayerRepresentation(Entity):
-    def __init__(self, position = (5,5,5)):
-        super().__init__(parent = scene,position = position,origin_y = .5,model='player.glb',scale=0.018)
 
-        
+from player import *
+from player import *
+
 
 App = Ursina()
 Client = UrsinaNetworkingClient("localhost", 25565)
@@ -28,14 +17,12 @@ Easy = EasyUrsinaNetworkingClient(Client)
 window.borderless = False
 
 sky = Sky()
+ground=Entity(model='plane',texture='grass',scale=1000,texture_scale=(31,31),collider='box')
 
-Blocks = {}
 Players = {}
-PlayersTargetPos = {}
+PlayersTargetPos={}
 
 SelfId = -1
-
-
 
 @Client.event
 def GetId(Id):
@@ -48,21 +35,10 @@ def onReplicatedVariableCreated(variable):
     global Client
     variable_name = variable.name
     variable_type = variable.content["type"]
-    if variable_type == "block":
-        block_type = variable.content["block_type"]
-        if block_type == "grass": new_block = Entity(model='plane',texture='grass',collider='box')
-        else:
-            print("Block not found.")
-            return
 
-        new_block.name = variable_name
-        new_block.position = variable.content["position"]
-        new_block.client = Client
-        Blocks[variable_name] = new_block
-    elif variable_type == "player":
+    if variable_type == "player":
         PlayersTargetPos[variable_name] = Vec3(0, 0, 0)
         Players[variable_name] = PlayerRepresentation()
-        Players[variable_name].loop("idle")
         if SelfId == int(variable.content["id"]):
             Players[variable_name].color = color.red
             Players[variable_name].visible = False
@@ -80,23 +56,10 @@ def onReplicatedVariableRemoved(variable):
         del Players[variable_name]
 
 Ply = Player()
-ground=Entity(model='plane',texture='grass',collider='box',scale=1000)
-
-INDEX = 1
-SELECTED_BLOCK = ""
 
 
 
 def input(key):
-
-    global INDEX, SELECTED_BLOCK
-
-    if key == "right mouse down":
-        A = raycast(Ply.position + (0, 2, 0), camera.forward, distance = 6, traverse_target = scene)
-
-    if key == "left mouse down":
-        A = raycast(Ply.position + (0, 2, 0), camera.forward, distance = 6, traverse_target = scene)
-
 
     Client.send_message("MyPosition", tuple(Ply.position + (0, 1, 0)))
 
