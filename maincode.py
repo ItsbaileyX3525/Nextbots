@@ -23,7 +23,6 @@ from ursina.prefabs.health_bar import HealthBar
 import random as ra
 from panda3d.core import Loader
 from direct.interval.IntervalGlobal import LerpHprInterval
-from direct.interval.ActorInterval import LerpAnimInterval
 from direct.actor.Actor import Actor
 from ursina.prefabs.health_bar import HealthBar
 

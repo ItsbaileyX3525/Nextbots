@@ -19,16 +19,17 @@ window.borderless = False
 sky = Sky()
 ground=Entity(model='plane',texture='grass',scale=1000,texture_scale=(31,31),collider='box')
 
-Players = {}
-PlayersTargetPos={}
+Players = {} #The players of the game
+PlayersTargetPos={} #Player position updating 
+PlayerTargetHpr={} #Player rotation updating
 
-SelfId = -1
+SelfId = -1 #decalres the id of players
 
 @Client.event
 def GetId(Id):
     global SelfId
     SelfId = Id
-    print(f"My ID is : {SelfId}")
+    print(f"My ID is : {SelfId}") #sets and prints the current player id
 
 @Easy.event
 def onReplicatedVariableCreated(variable):
@@ -36,8 +37,9 @@ def onReplicatedVariableCreated(variable):
     variable_name = variable.name
     variable_type = variable.content["type"]
 
-    if variable_type == "player":
+    if variable_type == "player": #If its a player set all this up
         PlayersTargetPos[variable_name] = Vec3(0, 0, 0)
+        PlayerTargetHpr[variable_name] = Vec3(0, 0, 0)
         Players[variable_name] = PlayerRepresentation()
         if SelfId == int(variable.content["id"]):
             Players[variable_name].color = color.red
@@ -46,9 +48,9 @@ def onReplicatedVariableCreated(variable):
 @Easy.event
 def onReplicatedVariableUpdated(variable):
     PlayersTargetPos[variable.name] = variable.content["position"]
-
+    PlayerTargetHpr[variable.name] = variable.content["rotation"]
 @Easy.event
-def onReplicatedVariableRemoved(variable):
+def onReplicatedVariableRemoved(variable): #Doesn't really work atm but removes the player when disconneted 
     variable_name = variable.name
     variable_type = variable.content["type"]
     if variable_type == "player":
@@ -58,10 +60,10 @@ def onReplicatedVariableRemoved(variable):
 Ply = Player()
 
 
-
 def input(key):
 
-    Client.send_message("MyPosition", tuple(Ply.position + (0, 1, 0)))
+    Client.send_message("MyPosition", tuple(Ply.position + (2, 0, 0)))
+    Client.send_message("MyRotation", tuple(Ply.rotation + (0, 0, 0)))
 
 def update():
 
@@ -71,6 +73,7 @@ def update():
     for p in Players:
         try:
             Players[p].position += (Vec3(PlayersTargetPos[p]) - Players[p].position) / 25
+            Players[p].rotation += (Vec3(PlayersTargetHpr[p]) - Players[p].rotation) / 25
         except Exception as e: print(e)
     
     Easy.process_net_events()
