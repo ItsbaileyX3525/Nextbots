@@ -39,7 +39,7 @@ def onReplicatedVariableCreated(variable):
 
     if variable_type == "player": #If its a player set all this up
         PlayersTargetPos[variable_name] = Vec3(0, 0, 0)
-        PlayerTargetHpr[variable_name] = Vec3(0, 0, 0)
+        PlayerTargetHpr[variable_name] = Vec3(0,0,0)
         Players[variable_name] = PlayerRepresentation()
         if SelfId == int(variable.content["id"]):
             Players[variable_name].color = color.red
@@ -59,13 +59,11 @@ def onReplicatedVariableRemoved(variable): #Doesn't really work atm but removes 
 
 Ply = Player()
 
-
-def messages():
-
-    Client.send_message("MyPosition", tuple(Ply.position + (0, 3, 0)))
+def Messages(key):
+    Client.send_message("MyPosition", tuple(Ply.position + (0, 2, 0)))
     Client.send_message("MyRotation", tuple(Ply.rotation + (0,0,0)))
 
-Entity(update=messages)
+Entity(input=Messages)
 def update():
 
     if Ply.position[1] < -5:
