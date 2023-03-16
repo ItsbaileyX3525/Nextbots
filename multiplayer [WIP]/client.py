@@ -60,20 +60,20 @@ def onReplicatedVariableRemoved(variable): #Doesn't really work atm but removes 
 Ply = Player()
 
 
-def input(key):
+def messages():
 
-    Client.send_message("MyPosition", tuple(Ply.position + (2, 0, 0)))
-    Client.send_message("MyRotation", tuple(Ply.rotation + (0, 0, 0)))
+    Client.send_message("MyPosition", tuple(Ply.position + (0, 3, 0)))
+    Client.send_message("MyRotation", tuple(Ply.rotation + (0,0,0)))
 
+Entity(update=messages)
 def update():
 
     if Ply.position[1] < -5:
         Ply.position = (randrange(0, 15), 10, randrange(0, 15))
-
     for p in Players:
         try:
             Players[p].position += (Vec3(PlayersTargetPos[p]) - Players[p].position) / 25
-            Players[p].rotation += (Vec3(PlayersTargetHpr[p]) - Players[p].rotation) / 25
+            Players[p].rotation += (Vec3(PlayerTargetHpr[p]) - Players[p].rotation) / 25
         except Exception as e: print(e)
     
     Easy.process_net_events()
