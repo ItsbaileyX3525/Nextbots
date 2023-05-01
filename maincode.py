@@ -103,7 +103,30 @@ class Character(AnimatedEntity):
             self.LerpAnim(toanim="walk")
         elif key=='shift up' and held_keys['s']:
             self.LerpAnim(toanim="walk backwards")
-
+        global health_regen_timer
+        if held_keys['shift'] and held_keys['w'] and not nomove and not held_keys['s']:
+            if health_bar_1.value == 0:
+                Harlod.speed = player_walkSpeed * jump
+            else:
+                Harlod.speed = player_runSpeed * jump
+                health_bar_1.value -= 0.25
+                health_regen_timer = 0
+        elif held_keys['shift'] and held_keys['s'] and not nomove and not held_keys['w']:
+            if health_bar_1.value == 0:
+                Harlod.speed = player_walkSpeed * jump
+            else:
+                Harlod.speed = player_jogSpeed * jump
+                health_bar_1.value -= 0.25
+                health_regen_timer = 0
+        elif health_regen_timer >= 2:
+            if health_bar_1.value < 100 and not nomove:
+                health_bar_1.value += time.dt  * 10
+                Harlod.speed = player_walkSpeed * jump
+        else:
+            Harlod.speed = player_walkSpeed * jump
+            health_regen_timer += time.dt
+        if nomove:
+            Harlod.speed = 0
 
 sus=Entity()
 class Nextbot(Entity): #Nextbot class for creating new nextbots
@@ -167,10 +190,7 @@ class Nextbot(Entity): #Nextbot class for creating new nextbots
                 rotate_interval.start()
         invoke(self.Nextbot_move, delay=delay)
 
-window.title="Nextbots"
 
-window.fullscreen=False
-window.icon="assets/misc/papyrus.ico"
 
 LoadingText=Text(text='Loading assets',enabled=False,x=-.7,y=.45)
 
@@ -192,19 +212,46 @@ async def LoadModel(model, name=None,parent=scene,actor=True): #Smoothly loads m
 
 
 app=Ursina(borderless=False)
+window.title="Nextbots"
+window.fullscreen=False
+window.icon="assets/misc/papyrus.ico"
+
+# Variables
+seq1=False
+health_regen_timer = 0
+ObungaNextbot=None
+PhonkNextbot=None
+JohnNextbot=None
+TycreatureNextbot=None
+AndrewNextbot=None
+AngymunciNextbot=None
+ArmstrongNextbot=None
+HardmodeEnabled=False
+EasymodeEnabled=False
+PeacefulmodeEnabled=False
+GenerativemodeEnabled=True
+timer=0
+playerdeath=False
+player_walkSpeed=6
+player_runSpeed=17
+player_jogSpeed=12
+nomove=False
+respawn=False
+jump = 1
+groundLevel = 1.0000001192092896
+BhopTimer = 0
+
+#Game stuff
 app.taskMgr.add(LoadModel(model="player.glb",name="Player", actor=False))
 editor_camera = EditorCamera(enabled=False)
 sus=Entity()
 
+#Health bars
 health_bar_1 = HealthBar(bar_color=color.yellow, roundness=.5,value=100,z=100)
 health_bar_2 = HealthBar(bar_color=color.red, roundness=.5,value=100,y=-66,x=-.8,z=100,scale=(.3,.015),show_text=False)
 health_bar_1.animation_duration = 0
 health_bar_2.animation_duration = 0
 
-HardmodeEnabled=False
-EasymodeEnabled=False
-PeacefulmodeEnabled=False
-GenerativemodeEnabled=True
 
 def Peacefulmode():
     global EasymodeEnabled,HardmodeEnabled,PeacefulmodeEnabled,GenerativemodeEnabled
@@ -267,13 +314,7 @@ Peaceful=Button(text='Peaceful mode off',y=-.3,scale_y=.1,scale_x=.2,x=-.5,on_cl
 Easy=Button(text='Easy mode off',y=-.3,scale_y=.1,scale_x=.2,x=.5,on_click=Easymode)
 Hard=Button(text='Hard mode off',y=-.3,scale_y=.1,scale_x=.2,on_click=Hardmode)
 Generative=Button(text='Special mode on',y=.4,scale_y=.1,scale_x=.2,on_click=Generatemode)
-ObungaNextbot=None
-PhonkNextbot=None
-JohnNextbot=None
-TycreatureNextbot=None
-AndrewNextbot=None
-AngymunciNextbot=None
-ArmstrongNextbot=None
+
 def game_begin():
     try:
         global EasymodeEnabled,HardmodeEnabled,PeacefulmodeEnabled,GenerativemodeEnabled,load_bg,start,health_bar_2,health_bar_1,nextbot1_1,nextbot1_2,nextbot1_3,nextbot1_4,nextbot1_5,nextbot1_6,PhonkNextbot,ArmstrongNextbot,ArmstrongNextbot,ObungaNextbot,TycreatureNextbot,JohnNextbot,AndrewNextbot,AngymunciNextbot
@@ -333,7 +374,7 @@ def game_begin():
     except Exception:
         CantOpen=Text(text='Assets not loaded yet',y=1)
         destroy(CantOpen,delay=2)
-timer=0
+
 
 def specialmode():
     global timer,PhonkNextbot,ArmstrongNextbot,ArmstrongNextbot,ObungaNextbot,TycreatureNextbot,AndrewNextbot,AngymunciNextbot,JohnNextbot
@@ -393,9 +434,9 @@ def gif_applier(): #Makes the double-sided gif work for the nextbots
         armstrong_texture1.rotation_y=ArmstrongNextbot.rotation_y + 180   
     except Exception:
         pass
-
 Entity(update=gif_applier)
-#Audios
+
+#Audios function
 
 async def LoadAudio(path, name=None, autoplay=False, loop=False,volume=1): #Smoothly loads audio files
     global LoadingText,audioname
@@ -406,6 +447,8 @@ async def LoadAudio(path, name=None, autoplay=False, loop=False,volume=1): #Smoo
     audioname=Audio(audioname,autoplay=autoplay,loop=loop,volume=volume)
     globals()[name] = audioname
     LoadingText.enabled=False
+
+# Audio loading
 app.taskMgr.add(LoadAudio(path="assets/audio/bong.ogg",name="Yippedeath",autoplay=False,loop=True))
 app.taskMgr.add(LoadAudio(path="assets/audio/armstrong.ogg",name="armstrongchase",autoplay=False,loop=True))
 app.taskMgr.add(LoadAudio(path="assets/audio/vacent1.wav",name="muncichase",autoplay=False,loop=True,volume=0.8))
@@ -417,17 +460,13 @@ app.taskMgr.add(LoadAudio(path="assets/audio/saddyclose.ogg",name="AutismCreatur
 app.taskMgr.add(LoadAudio(path="assets/audio/death.ogg",name="death",autoplay=False,loop=False,volume=2))
 app.taskMgr.add(LoadAudio(path="assets/audio/jumpscare.ogg",name="jumpscare",autoplay=False,loop=False))
 app.taskMgr.add(LoadAudio(path="assets/audio/button-click.ogg",name="ButtonClick",autoplay=False,loop=False))
-
+Audio('welcome')
 
 #main menu
-
 load_bg=Entity(parent=camera.ui,model='quad',color=color.black,scale=(100,100))
 start=Button(text='Start game',disabled=False,scale=(.2,.1),z=-100,text_color=color.black,color=color.white,visible=True,on_click=game_begin)
 window.color = color.white
 
-
-Audio('welcome')
-playerdeath=False
 
 ground = Entity(model='plane', scale=1000, texture='grass', texture_scale=(31.6227766017,31.6227766017), collider='box')
 
@@ -438,9 +477,7 @@ window.fps_counter.enabled=True
 Harlod=FirstPersonController()
 
 mouse.locked=False
-Harlod.walkSpeed=6
-Harlod.runSpeed=17
-Harlod.jogSpeed=12
+
 healthtext=Text(text=f'{health_bar_2.value}/{health_bar_2.max_value}',x=-.5,y=-.4)
 healthtext1=Text(text='Health:',x=-.8,y=-.4)
 healthbox=Entity(alpha=.5,color=color.yellow)
@@ -457,9 +494,6 @@ Crowbar1.setHpr(20,0,0)
 Crowbar1.setPos(.35,-.5,.8)
 Crowbar1.loop("swing")
 
-
-nomove=False
-respawn=False
 
 button=Button(icon=False,text='Respawn?',highlightcolor=color.orange,scale=(0.25,0.1),color=color.rgb(0,0,150),text_color=color.black,y=.2,disabled=True,visible=False)
 button2=Button(icon=False,text="Rage quit?",scale=(0.5,0.1),text_color=color.black,color=color.rgb(0,0,150),y=-.2,disabled=True,visible=False)
@@ -506,16 +540,17 @@ sky_thread = threading.Thread(target=load_sky)
 sky_thread.start()
 
 def input(key):
+    global jump
     if key=='f12':
         if window.fullscreen:
             window.fullscreen=False
         else:
             window.fullscreen=True
-seq1=False
+    if key == 'space' and BhopTimer <= 0.49 and jump <= 3 and Harlod.grounded:
+        jump+=1
 
-health_regen_timer = 0
 def update():
-    global playerdeath, seq1, health_regen_timer,respawn
+    global playerdeath, seq1, health_regen_timer,respawn,BhopTimer,jump
     round(health_bar_1.value, 1)
     if playerdeath == True:
         if not seq1:
@@ -525,30 +560,11 @@ def update():
         if Harlod.y==1:
             playerdeath = False
             Harlod.position=2
-    if held_keys['shift'] and held_keys['w'] and not nomove and not held_keys['s']:
-        if health_bar_1.value == 0:
-            Harlod.speed = Harlod.walkSpeed
-        else:
-            Harlod.speed = Harlod.runSpeed
-            health_bar_1.value -= 0.25
-            health_regen_timer = 0
-    elif held_keys['shift'] and held_keys['s'] and not nomove and not held_keys['w']:
-        if health_bar_1.value == 0:
-            Harlod.speed = Harlod.walkSpeed
-        else:
-            Harlod.speed = Harlod.jogSpeed
-            health_bar_1.value -= 0.25
-            health_regen_timer = 0
-    elif health_regen_timer >= 2:
-        if health_bar_1.value < 100 and not nomove:
-            health_bar_1.value += time.dt  * 10
-            Harlod.speed = Harlod.walkSpeed
+    if Harlod.y == groundLevel:
+        BhopTimer+=time.dt
     else:
-        Harlod.speed = Harlod.walkSpeed
-        health_regen_timer += time.dt
-    if nomove:
-        Harlod.speed = 0
-
-
+        BhopTimer = 0
+    if BhopTimer >= 0.1:
+        jump = 1
 
 app.run()
