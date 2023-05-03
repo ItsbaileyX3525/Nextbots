@@ -1,0 +1,57 @@
+import threading
+
+async def LoadModel(model, name=None,parent=scene,actor=True): #Smoothly loads models
+    global LoadingText,modelname
+    LoadingText.enabled=True
+    modelname=name
+    modelname = await loader.loadModel(model, blocking=False)
+    
+    if actor:
+        modelname=Actor(modelname)
+        modelname.reparentTo(parent)
+        globals()[name] = modelname
+    elif not actor:
+        globals()[name] = modelname
+    
+    LoadingText.enabled=False
+
+def healthupdate():
+    healthtext.text=f'{health_bar_2.value}/{health_bar_2.max_value}'
+Entity(update=healthupdate)
+
+def respawn_screen():
+    global respawn,deathL
+    respawn=True
+    if respawn:
+        button.visible=True
+        button.disabled=False
+        button2.visible=True
+        button2.disabled=False
+        Harlod.speed=0
+        Harlod.cursor.enabled = not editor_camera.enabled
+        mouse.locked = not editor_camera.enabled
+        def action():
+            ButtonClick.play()
+            editor_camera.enabled = not editor_camera.enabled
+            Harlod.cursor.enabled = not editor_camera.enabled
+            mouse.locked = not editor_camera.enabled
+            editor_camera.scripts.remove(deathL)
+            Harlod.x=ra.uniform(0,50)
+            Crowbar1.setPos(.35,-.5,.8) 
+            button.visible=False
+            button.disabled=True
+            button2.visible=False
+            button2.disabled=True
+            Harlodypos=Harlod.y + .3
+            Harlod.y=Harlodypos
+        def quit():
+            application.quit()
+        button.on_click=action
+        button2.on_click=quit
+        respawn=False
+
+
+def load_sky():
+    Sky()
+sky_thread = threading.Thread(target=load_sky)
+sky_thread.start()

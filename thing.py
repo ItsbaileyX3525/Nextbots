@@ -1,6 +1,6 @@
 from ursina import *
-window.frame_rate = 25
-app = Ursina()
+
+app = Ursina(vsync=25)
 
 player = Entity(model='cube', color=color.orange, scale=(2,2,2),x=40,y=3)
 follower = Entity(model='sphere', color=color.blue, scale=(2,2,2),y=3)

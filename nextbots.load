@@ -1,0 +1,147 @@
+def Peacefulmode():
+    global EasymodeEnabled,HardmodeEnabled,PeacefulmodeEnabled,GenerativemodeEnabled
+    if PeacefulmodeEnabled:
+        PeacefulmodeEnabled=False
+        Peaceful.text='Peaceful mode off'
+    else:
+        EasymodeEnabled=False
+        PeacefulmodeEnabled=True
+        GenerativemodeEnabled=False
+        HardmodeEnabled=False
+        Hard.text='Hard mode off'
+        Easy.text='Easy mode off'
+        Generative.text='Special mode off'
+        Peaceful.text='Peaceful mode on'
+def Easymode():
+    global EasymodeEnabled,HardmodeEnabled,PeacefulmodeEnabled,GenerativemodeEnabled
+    if EasymodeEnabled:
+        EasymodeEnabled=False
+        Easy.text='Easy mode off'
+    else:
+        EasymodeEnabled=True
+        PeacefulmodeEnabled=False
+        GenerativemodeEnabled=False
+        HardmodeEnabled=False
+        Hard.text='Hard mode off'
+        Easy.text='Easy mode on'
+        Generative.text='Special mode off'
+        Peaceful.text='Peaceful mode off'
+def Hardmode():
+    global EasymodeEnabled,HardmodeEnabled,PeacefulmodeEnabled,GenerativemodeEnabled
+    if HardmodeEnabled:
+        HardmodeEnabled=False
+        Hard.text='Hard mode off'
+    else:
+        EasymodeEnabled=False
+        PeacefulmodeEnabled=False
+        GenerativemodeEnabled=False
+        HardmodeEnabled=True
+        Hard.text='Hard mode on'
+        Easy.text='Easy mode off'
+        Generative.text='Special mode off'
+        Peaceful.text='Peaceful mode off'
+def Generatemode():
+    global EasymodeEnabled,HardmodeEnabled,PeacefulmodeEnabled,GenerativemodeEnabled
+    if GenerativemodeEnabled:
+        GenerativemodeEnabled=False
+        Generative.text='Special mode off'
+    else:
+        EasymodeEnabled=False
+        PeacefulmodeEnabled=False
+        GenerativemodeEnabled=True
+        HardmodeEnabled=False
+        Hard.text='Hard mode off'
+        Easy.text='Easy mode off'
+        Generative.text='Special mode on'
+        Peaceful.text='Peaceful mode off'
+
+Peaceful=Button(text='Peaceful mode off',y=-.3,scale_y=.1,scale_x=.2,x=-.5,on_click=Peacefulmode)
+Easy=Button(text='Easy mode off',y=-.3,scale_y=.1,scale_x=.2,x=.5,on_click=Easymode)
+Hard=Button(text='Hard mode off',y=-.3,scale_y=.1,scale_x=.2,on_click=Hardmode)
+Generative=Button(text='Special mode on',y=.4,scale_y=.1,scale_x=.2,on_click=Generatemode)
+
+def game_begin():
+    try:
+        global EasymodeEnabled,HardmodeEnabled,PeacefulmodeEnabled,GenerativemodeEnabled,load_bg,start,health_bar_2,health_bar_1,nextbot1_1,nextbot1_2,nextbot1_3,nextbot1_4,nextbot1_5,nextbot1_6,PhonkNextbot,ArmstrongNextbot,ArmstrongNextbot,ObungaNextbot,TycreatureNextbot,JohnNextbot,AndrewNextbot,AngymunciNextbot
+        HarlodModel=Character()
+        if not EasymodeEnabled and not HardmodeEnabled and not PeacefulmodeEnabled and not GenerativemodeEnabled:
+            EasymodeEnabled=True
+        Harlod.speed=8
+        ButtonClick.play()
+        load_bg.enabled=False
+        Hard.disabled=False
+        Hard.visible=False
+        Easy.disabled=False
+        Easy.visible=False
+        Generative.disabled=False
+        Generative.visible=False
+        Peaceful.disabled=False
+        Peaceful.visible=False
+        start.disabled=True
+        start.visible=False
+        mouse.locked=True
+        health_bar_2.z=0
+        health_bar_1.z=0
+        #Nextbot setup
+        nextbot1_1=False
+        nextbot1_2=False
+        nextbot1_3=False
+        nextbot1_4=False
+        nextbot1_5=False
+        nextbot1_6=False
+        if HardmodeEnabled:
+            PhonkNextbot=Nextbot(texture='assets/textures/phonk.png', chase_sound=PhonkChase, death_sound=jumpscare, death_texture='assets/textures/phonk.gif',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
+            ObungaNextbot=Nextbot(texture='assets/textures/obunga.png', chase_sound=obungachase, death_sound=jumpscare, death_texture='assets/textures/obunga.png',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
+            TycreatureNextbot=Nextbot(texture='assets/textures/saddydaddy.png', chase_sound=AutismCreatureChase, death_sound=Yippedeath, death_texture='assets/textures/saddydaddy.png',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
+            AndrewNextbot=Nextbot(texture='assets/textures/andrew.png', chase_sound=tateyChase, death_sound=jumpscare, death_texture='assets/textures/andrew.png',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
+            AngymunciNextbot=Nextbot(texture='assets/textures/angy munci.png', chase_sound=muncichase, death_sound=jumpscare, death_texture='assets/textures/angy munci.png',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
+            ArmstrongNextbot=Nextbot(texture='assets/textures/phonk.png', chase_sound=armstrongchase, death_sound=jumpscare, death_texture='assets/textures/armstrong.gif',chase_speed=14,wonder_speed=10,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
+        elif PeacefulmodeEnabled:
+            pass
+        elif EasymodeEnabled:
+            num1=ra.randint(1,3)
+            num2=ra.randint(1,3)
+            if num1==1:
+                PhonkNextbot=Nextbot(texture='assets/textures/phonk.png', chase_sound=PhonkChase, death_sound=jumpscare, death_texture='assets/textures/phonk.gif',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
+            elif num1==2:
+                ObungaNextbot=Nextbot(texture='assets/textures/obunga.png', chase_sound=obungachase, death_sound=jumpscare, death_texture='assets/textures/obunga.png',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
+            elif num1==3:
+                TycreatureNextbot=Nextbot(texture='assets/textures/saddydaddy.png', chase_sound=AutismCreatureChase, death_sound=Yippedeath, death_texture='assets/textures/saddydaddy.png',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
+            if num2==1:
+                AndrewNextbot=Nextbot(texture='assets/textures/andrew.png', chase_sound=tateyChase, death_sound=jumpscare, death_texture='assets/textures/andrew.png',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
+            elif num2==2:
+                AngymunciNextbot=Nextbot(texture='assets/textures/angy munci.png', chase_sound=muncichase, death_sound=jumpscare, death_texture='assets/textures/angy munci.png',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
+            elif num2==3:
+                ArmstrongNextbot=Nextbot(texture='assets/textures/phonk.png', chase_sound=armstrongchase, death_sound=jumpscare, death_texture='assets/textures/armstrong.gif',chase_speed=14,wonder_speed=10,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
+        elif GenerativemodeEnabled:
+            Entity(update=specialmode)
+            ObungaNextbot=Nextbot(texture='assets/textures/obunga.png', chase_sound=obungachase, death_sound=jumpscare, death_texture='assets/textures/obunga.png',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
+    except Exception:
+        CantOpen=Text(text='Assets not loaded yet',y=1)
+        destroy(CantOpen,delay=2)
+
+
+def specialmode():
+    global timer,PhonkNextbot,ArmstrongNextbot,ArmstrongNextbot,ObungaNextbot,TycreatureNextbot,AndrewNextbot,AngymunciNextbot,JohnNextbot
+    timer+=time.dt
+    if timer>=10:
+        if PhonkNextbot==None:
+            PhonkNextbot=Nextbot(texture='assets/textures/phonk.png', chase_sound=PhonkChase, death_sound=jumpscare, death_texture='assets/textures/phonk.gif',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
+    if timer>=20:
+        if TycreatureNextbot==None:
+            TycreatureNextbot=Nextbot(texture='assets/textures/saddydaddy.png', chase_sound=AutismCreatureChase, death_sound=Yippedeath, death_texture='assets/textures/saddydaddy.png',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
+    if timer>=30:
+        if AndrewNextbot==None:
+            AndrewNextbot=Nextbot(texture='assets/textures/andrew.png', chase_sound=tateyChase, death_sound=jumpscare, death_texture='assets/textures/andrew.png',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
+    if timer>=40:
+        if ArmstrongNextbot==None:
+            ArmstrongNextbot=Nextbot(texture='assets/textures/phonk.png', chase_sound=armstrongchase, death_sound=jumpscare, death_texture='assets/textures/armstrong.gif',chase_speed=14,wonder_speed=10,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
+    if timer>=50:
+        if AngymunciNextbot==None:
+            AngymunciNextbot=Nextbot(texture='assets/textures/angy munci.png', chase_sound=muncichase, death_sound=jumpscare, death_texture='assets/textures/angy munci.png',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
+    if timer>=80:
+        if JohnNextbot==None:
+            camera.shake(duration=3,magnitude=5)
+            johnspawned=Text(text='JOHN HAS BEEN SPAWNED RUN FOR YOUR LIFE',x=-.3,y=.3)
+            destroy(johnspawned,delay=2)
+            JohnNextbot=Nextbot(texture='assets/textures/john.png', chase_sound=muncichase, death_sound=jumpscare, death_texture='assets/textures/john.png',chase_speed=16,wonder_speed=12,x=ra.uniform(-80,80),z=ra.uniform(-80,80),scale=5)
