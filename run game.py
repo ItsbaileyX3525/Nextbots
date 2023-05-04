@@ -37,6 +37,7 @@ window.icon="assets/misc/papyrus.ico"
 app=Ursina(borderless=False)
 window.exit_button.visible=False
 window.fps_counter.enabled=True
+window.color = color.white
 
 with open("classes.load", "r") as f:
     exec(f.read())
@@ -74,6 +75,7 @@ player_runSpeed=17
 player_jogSpeed=12
 respawn=False
 jump = 1
+NextbotCustom1=''
 GROUNDLEVEL = 1.0000001192092896
 BhopTimer = 0
 
@@ -86,11 +88,23 @@ sus=Entity()
 health_bar_1 = HealthBar(bar_color=color.yellow, roundness=.5,value=100,z=100,animation_duration = 0)
 health_bar_2 = HealthBar(bar_color=color.red, roundness=.5,value=100,y=-66,x=-.8,z=100,scale=(.3,.015),show_text=False,animation_duration = 0)
 
+def Apply_Nextbot():
+    global NextbotCustom
+    NextbotCustom=NextbotCustom1.text
+    print(NextbotCustom.text)
+
+def CustomNextbot():
+    if NextbotCustom1:
+        NextbotCustom1.enabled=True
+    else:
+        NextbotCustom1.enabled=False
+    
+NextbotCustom1=InputField(parent=camera.ui,y=.1,enabled=False,submit_on='enter',on_submit=Apply_Nextbot)
 
 #main menu
-load_bg=Entity(parent=camera.ui,model='quad',color=color.black,scale=(100,100))
+load_bg=Entity(parent=camera.ui,model='quad',color=color.gray,scale=(100,100))
 start=Button(text='Start game',disabled=False,scale=(.2,.1),z=-100,text_color=color.black,color=color.white,visible=True,on_click=game_begin)
-window.color = color.white
+custom_nextbot=Button(text='Upload custom nextbot',disabled=False,scale=(.2,.1),z=-100,text_color=color.white,visible=True,on_click=CustomNextbot,x=.2)
 
 
 ground = Entity(model='plane', scale=1000, texture='grass', texture_scale=(100,100), collider='box')

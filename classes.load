@@ -107,7 +107,7 @@ class Nextbot(Entity):
             y=2,
             double_sided=True,
             **kwargs
-        )
+            )
         self.chase_sound = chase_sound
         self.speed = chase_speed
         self.speed2 = wonder_speed
@@ -121,7 +121,7 @@ class Nextbot(Entity):
         self.Nextbot_rotate()
         self.chase_sound.volume = 0
         self.chase_sound.play()
-        self.PhonkDeath = Entity(enabled=False, model='quad', texture=self.death_texture, parent=camera.ui, scale=(2, 2))
+        self.PhonkDeath = Entity(visible=False, model='quad', texture=self.death_texture, parent=camera.ui, scale=(2, 2))
 
     def update(self):
         self.dist = distance(Harlod.position, self.position)
@@ -136,7 +136,7 @@ class Nextbot(Entity):
         elif self.dist < 1.2:
             if not self.killed_sound.playing:
                 self.killed_sound.play()
-                self.PhonkDeath.enabled=True
+                self.PhonkDeath.visible=True
                 Harlod.y = 70
                 obungaafterscarexpos = Harlod.x - 20
                 self.x = obungaafterscarexpos
@@ -149,7 +149,7 @@ class Nextbot(Entity):
 
     def playerdeath(self):
         global playerdeath, deathL
-        self.PhonkDeath.enabled=False
+        self.PhonkDeath.visible=False
         self.death_sound.play()
         editor_camera.enabled = True
         respawn_screen()
