@@ -56,7 +56,7 @@ class NextbotConfigGUI:
         self.death_texture.set(file_path)
 
     def create_nextbot(self):
-        nextbot_config = f"Nextbot(texture='{self.texture.get()}', chase_sound='{self.chase_sound.get()}', death_sound='{self.death_sound.get()}', death_texture='{self.death_texture.get()}', chase_speed={self.chase_speed.get()}, wonder_speed={self.wonder_speed.get()})"
+        nextbot_config = f"texture='{self.texture.get()}', chase_sound={self.chase_sound.get()}, death_sound={self.death_sound.get()}, death_texture='{self.death_texture.get()}', chase_speed={self.chase_speed.get()}, wonder_speed={self.wonder_speed.get()}"
         with open("Nextbots.txt", "a") as f:
             f.write(nextbot_config + "\n")
 

@@ -91,20 +91,20 @@ health_bar_2 = HealthBar(bar_color=color.red, roundness=.5,value=100,y=-66,x=-.8
 def Apply_Nextbot():
     global NextbotCustom
     NextbotCustom=NextbotCustom1.text
-    print(NextbotCustom.text)
 
 def CustomNextbot():
-    if NextbotCustom1:
+    if not NextbotCustom1.enabled:
         NextbotCustom1.enabled=True
     else:
         NextbotCustom1.enabled=False
     
-NextbotCustom1=InputField(parent=camera.ui,y=.1,enabled=False,submit_on='enter',on_submit=Apply_Nextbot)
+NextbotCustom1=InputField(parent=camera.ui,y=.2,enabled=False,submit_on='enter',on_submit=Apply_Nextbot)
 
 #main menu
 load_bg=Entity(parent=camera.ui,model='quad',color=color.gray,scale=(100,100))
 start=Button(text='Start game',disabled=False,scale=(.2,.1),z=-100,text_color=color.black,color=color.white,visible=True,on_click=game_begin)
-custom_nextbot=Button(text='Upload custom nextbot',disabled=False,scale=(.2,.1),z=-100,text_color=color.white,visible=True,on_click=CustomNextbot,x=.2)
+custom_nextbot=Button(text='Upload custom nextbot',disabled=False,scale=(.2,.1),z=-100,text_color=color.white,visible=True,on_click=CustomNextbot,x=.4)
+custom_nextbot.fit_to_text()
 
 
 ground = Entity(model='plane', scale=1000, texture='grass', texture_scale=(100,100), collider='box')
@@ -117,9 +117,6 @@ healthtext=Text(text=f'{health_bar_2.value}/{health_bar_2.max_value}',x=-.5,y=-.
 healthtext1=Text(text='Health:',x=-.8,y=-.4)
 healthbox=Entity(alpha=.5,color=color.yellow)
 
-def healthupdate():
-    healthtext.text=f'{health_bar_2.value}/{health_bar_2.max_value}'
-Entity(update=healthupdate)
 
 #crorbar innit
 Crowbar1=Actor("crowbar.glb")
@@ -148,6 +145,7 @@ def input(key):
 def update():
     global playerdeath, seq1, health_regen_timer,respawn,BhopTimer,jump
     round(health_bar_1.value, 1)
+    healthtext.text=f'{health_bar_2.value}/{health_bar_2.max_value}'
     if playerdeath == True:
         if not seq1:
             Crowbar1.setPos(.35,765675,.8)
