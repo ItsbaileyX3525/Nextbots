@@ -62,13 +62,15 @@ Generative=Button(text='Special mode on',y=.4,scale_y=.1,scale_x=.2,on_click=Gen
 
 def game_begin():
     try:
-        global EasymodeEnabled,HardmodeEnabled,PeacefulmodeEnabled,GenerativemodeEnabled,load_bg,start,health_bar_2,health_bar_1,nextbot1_1,nextbot1_2,nextbot1_3,nextbot1_4,nextbot1_5,nextbot1_6,PhonkNextbot,ArmstrongNextbot,ArmstrongNextbot,ObungaNextbot,TycreatureNextbot,JohnNextbot,AndrewNextbot,AngymunciNextbot
+        global EasymodeEnabled,HardmodeEnabled,PeacefulmodeEnabled,GenerativemodeEnabled,NextbotCustom1,custom_nextbot,load_bg,start,health_bar_2,health_bar_1,nextbot1_1,nextbot1_2,nextbot1_3,nextbot1_4,nextbot1_5,nextbot1_6,PhonkNextbot,ArmstrongNextbot,ArmstrongNextbot,ObungaNextbot,TycreatureNextbot,JohnNextbot,AndrewNextbot,AngymunciNextbot
         HarlodModel=Character()
         if not EasymodeEnabled and not HardmodeEnabled and not PeacefulmodeEnabled and not GenerativemodeEnabled:
             EasymodeEnabled=True
         Harlod.speed=8
         ButtonClick.play()
         load_bg.enabled=False
+        NextbotCustom1.enabled=False
+        custom_nextbot.enabled=False
         Hard.enabled=False
         Easy.enabled=False
         Generative.enabled=False
@@ -91,6 +93,32 @@ def game_begin():
             AndrewNextbot=Nextbot(texture='assets/textures/andrew.png', chase_sound=tateyChase, death_sound=jumpscare, death_texture='assets/textures/andrew.png',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
             AngymunciNextbot=Nextbot(texture='assets/textures/angy munci.png', chase_sound=muncichase, death_sound=jumpscare, death_texture='assets/textures/angy munci.png',chase_speed=10,wonder_speed=8,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
             ArmstrongNextbot=Nextbot(texture='assets/textures/phonk.png', chase_sound=armstrongchase, death_sound=jumpscare, death_texture='assets/textures/armstrong.gif',chase_speed=14,wonder_speed=10,x=ra.uniform(-80,80),z=ra.uniform(-80,80))
+            try:
+                custom_arg = NextbotCustom
+
+                arg_list = custom_arg.split(", ")
+
+                arg_dict = {}
+
+                for arg in arg_list:
+                    key, value = arg.split("=")
+                    if value.isdigit():
+                        value = float(value)
+                    elif value == 'True':
+                        value = True
+                    elif value == 'False':
+                        value = False
+                    else:
+                        try:
+                            value = eval(value)
+                        except:
+                            pass
+                    arg_dict[key] = value
+
+                Custom = Nextbot(**arg_dict)
+            except:
+                    print("Failed")
+                    print("Likely reason is audio fail, make sure the audio exists!")
         elif PeacefulmodeEnabled:
             pass
         elif EasymodeEnabled:
