@@ -23,10 +23,8 @@ def respawn_screen():
     global respawn,deathL
     respawn=True
     if respawn:
-        button.visible=True
-        button.disabled=False
-        button2.visible=True
-        button2.disabled=False
+        button.enabled=True
+        button2.enabled=True
         Harlod.speed=0
         Harlod.cursor.enabled = not editor_camera.enabled
         mouse.locked = not editor_camera.enabled
@@ -38,10 +36,8 @@ def respawn_screen():
             editor_camera.scripts.remove(deathL)
             Harlod.x=ra.uniform(0,50)
             Crowbar1.setPos(.35,-.5,.8) 
-            button.visible=False
-            button.disabled=True
-            button2.visible=False
-            button2.disabled=True
+            button.enabled=False
+            button2.enabled=False
             Harlodypos=Harlod.y + .3
             Harlod.y=Harlodypos
         def quit():

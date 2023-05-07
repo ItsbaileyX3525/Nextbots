@@ -69,16 +69,11 @@ def game_begin():
         Harlod.speed=8
         ButtonClick.play()
         load_bg.enabled=False
-        Hard.disabled=False
-        Hard.visible=False
-        Easy.disabled=False
-        Easy.visible=False
-        Generative.disabled=False
-        Generative.visible=False
-        Peaceful.disabled=False
-        Peaceful.visible=False
-        start.disabled=True
-        start.visible=False
+        Hard.enabled=False
+        Easy.enabled=False
+        Generative.enabled=False
+        Peaceful.enabled=False
+        start.enabled=False
         mouse.locked=True
         health_bar_2.z=0
         health_bar_1.z=0
