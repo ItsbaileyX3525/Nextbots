@@ -316,15 +316,6 @@ menu = UI()
 def load_sky():
     Sky()
 threading.Thread(target=load_sky).start()
-# Variables
-ObungaNextbot=None
-PhonkNextbot=None
-JohnNextbot=None
-TycreatureNextbot=None
-AndrewNextbot=None
-AngymunciNextbot=None
-ArmstrongNextbot=None
-playerdeath=False
 
 #Audio
 tateyChase=Audio("assets/audio/tate2.ogg",autoplay=False,loop=True)
